@@ -348,35 +348,33 @@ section[id] { scroll-margin-top: var(--header-h); }
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 28px;
+  overflow: hidden;
   transition: transform .35s var(--ease), box-shadow .35s var(--ease);
 }
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.card-body { padding: 22px 26px 26px; }
 .card h3 { font-size: 1.12rem; margin-bottom: 8px; }
 .card p { color: var(--ink-soft); font-size: .95rem; margin-bottom: 0; }
 
-.card-icon, .equip-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 18px;
+.card-media, .equip-media {
+  aspect-ratio: 16 / 10;
+  width: 100%;
 }
-.icon-green { background: var(--green-light); color: var(--green-dark); }
-.icon-lavender { background: var(--lavender-light); color: var(--lavender-dark); }
-.card-icon svg, .equip-icon svg, .contact-icon svg { width: 26px; height: 26px; }
+.card-media svg, .equip-media svg { width: 100%; height: 100%; display: block; }
+.media-green { background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); }
+.media-lavender { background: linear-gradient(135deg, var(--lavender) 0%, var(--lavender-dark) 100%); }
+.contact-icon svg { width: 26px; height: 26px; }
 
 /* ---- Equipment cards ---- */
 .equip-card {
   background: var(--white);
   border-radius: var(--radius-lg);
-  padding: 28px;
+  overflow: hidden;
   box-shadow: var(--shadow-sm);
   transition: transform .35s var(--ease), box-shadow .35s var(--ease);
 }
 .equip-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.equip-body { padding: 22px 26px 26px; }
 .equip-card h3 { font-size: 1.08rem; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .equip-card p { color: var(--ink-soft); font-size: .95rem; margin-bottom: 0; }
 .tag {
