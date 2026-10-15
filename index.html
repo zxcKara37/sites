@@ -1,0 +1,1189 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a110c">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Склад кафе">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Склад кафе</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#1a110c; --s1:#261a13; --s2:#30221a; --s3:#3c2b20;
+  --line:rgba(245,230,205,.08); --line2:rgba(245,230,205,.16);
+  --ink:#f6ead8; --ink2:#d9c8ae; --mut:#a89480; --dim:#75655a;
+  --foam:#f0dfc2; --foam2:#e4cfa9; --on-foam:#2a1a0f;
+  --ok:#a3cb9e; --okbg:rgba(163,203,158,.15);
+  --warn:#e6bd62; --warnbg:rgba(230,189,98,.15);
+  --bad:#e8918a; --badbg:rgba(232,145,138,.15);
+  --f:ui-rounded,"SF Pro Rounded","Nunito",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --ease:cubic-bezier(.22,.8,.24,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--f);-webkit-font-smoothing:antialiased;overscroll-behavior-y:none;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 50% at 50% -10%,#35231a 0%,rgba(53,35,26,0) 62%)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;transition:transform .14s var(--ease),background-color .2s,opacity .2s,border-color .2s}
+button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--foam);outline-offset:2px}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+main{max-width:560px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px calc(116px + env(safe-area-inset-bottom))}
+main.enter{animation:fadein .22s ease both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+
+.hd{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 0 14px}
+.hd h1{margin:0;font-size:30px;line-height:1.1;font-weight:750;letter-spacing:-.02em}
+.hd .sub{color:var(--mut);font-size:14px;margin-top:3px}
+.ibtn{width:44px;height:44px;border-radius:14px;border:1px solid var(--line);background:var(--s1);color:var(--ink2);display:grid;place-items:center}
+.ibtn:disabled{opacity:.3}
+h2{margin:26px 0 10px;font-size:17px;font-weight:700;letter-spacing:-.005em;color:var(--ink)}
+.h2row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:26px 0 10px}
+.h2row h2{margin:0}
+.hint{color:var(--mut);font-size:13.5px}
+.mut{color:var(--mut)}
+.sec-note{color:var(--mut);font-size:13.5px;margin:-4px 0 10px}
+
+/* кнопки */
+.btn{border:0;border-radius:16px;min-height:52px;padding:0 20px;font-weight:700;font-size:16px;background:var(--foam);color:var(--on-foam);width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.alt{background:var(--s2);color:var(--ink);border:1px solid var(--line)}
+.btn.ghost{background:transparent;color:var(--ink2);border:1px solid var(--line2)}
+.btn.danger{background:var(--badbg);color:var(--bad)}
+.btn.sm{width:auto;min-height:42px;padding:0 16px;font-size:15px;border-radius:14px}
+.btn:disabled{opacity:.55}
+.linkbtn{background:none;border:0;color:var(--ink2);min-height:48px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;margin-top:10px}
+
+/* чек: главный элемент экрана отчёта */
+.ticket{--stub:116px;position:relative;display:grid;grid-template-columns:1fr var(--stub);background:var(--foam);color:var(--on-foam);border-radius:22px;margin:0 0 6px;
+  -webkit-mask:radial-gradient(circle 10px at calc(100% - var(--stub)) 0,#0000 97%,#000),radial-gradient(circle 10px at calc(100% - var(--stub)) 100%,#0000 97%,#000);
+  -webkit-mask-composite:source-in;
+  mask:radial-gradient(circle 10px at calc(100% - var(--stub)) 0,#0000 97%,#000),radial-gradient(circle 10px at calc(100% - var(--stub)) 100%,#0000 97%,#000);
+  mask-composite:intersect}
+.ticket::after{content:"";position:absolute;top:14px;bottom:14px;right:var(--stub);border-left:2px dashed rgba(42,26,15,.28)}
+.t-main{padding:16px 14px 16px 18px;min-width:0}
+.t-main b{display:block;font-size:19px;line-height:1.2;font-weight:750;letter-spacing:-.01em}
+.t-main span{display:block;margin-top:4px;font-size:13.5px;color:rgba(42,26,15,.7);line-height:1.35}
+.t-stub{display:grid;place-items:center;padding:10px}
+.t-stub button{width:100%;min-height:46px;border:0;border-radius:14px;background:var(--on-foam);color:var(--foam);font-weight:700;font-size:14.5px;line-height:1.15;padding:6px}
+.t-stub button.soft{background:rgba(42,26,15,.1);color:var(--on-foam)}
+.ticket.done .t-main b{display:flex;align-items:center;gap:8px}
+.ticket.done .t-main .ic{color:#2f6b3a;width:22px;height:22px;stroke-width:2.4}
+.daybar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px}
+.daybar .d{flex:1;text-align:center;line-height:1.2}
+.daybar .d b{display:block;font-size:16px}
+.daybar .d span{color:var(--mut);font-size:13px}
+
+/* плитки со счётчиком */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:0 17px;border-radius:99px;border:1px solid var(--line2);background:var(--s1);color:var(--ink);font-weight:600;display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.chip.add{border-style:dashed;background:transparent;color:var(--mut)}
+.chip.sel{background:var(--foam);color:var(--on-foam);border-color:transparent}
+.chip.on{background:var(--foam);color:var(--on-foam);border-color:transparent;padding:0;gap:0;overflow:hidden;cursor:default}
+.chip.on:active{transform:none}
+.chip.on .cb{width:46px;height:48px;border:0;background:none;color:inherit;display:grid;place-items:center;border-radius:0}
+.chip.on .cb:active{background:rgba(42,26,15,.12);transform:none}
+.chip.on .nm{border:0;background:none;color:inherit;font-weight:700;padding:0 2px;min-height:48px;display:inline-flex;align-items:center;gap:7px;min-width:0}
+.cnt{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 7px;border-radius:99px;background:var(--on-foam);color:var(--foam);font-size:14px;font-weight:750}
+.bump{animation:pop .3s var(--ease)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.28)}100%{transform:scale(1)}}
+
+/* список с делителями (обеды, закончилось) */
+.list{background:var(--s1);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px 8px 16px;min-height:60px}
+.li+.li{border-top:1px solid var(--line)}
+.li .ln{font-weight:600;font-size:16.5px;min-width:0;overflow-wrap:anywhere}
+.step{display:flex;align-items:center;gap:4px;flex:none}
+.sb{width:44px;height:44px;border-radius:14px;border:1px solid var(--line2);background:var(--s2);color:var(--ink);display:grid;place-items:center}
+.sn{min-width:56px;height:44px;border:0;background:none;display:grid;place-items:center;font-size:23px;font-weight:750;letter-spacing:-.02em;color:var(--ink)}
+.sn.empty::before{content:"";display:block;width:7px;height:7px;border-radius:50%;background:var(--dim);margin:0 auto}
+.li.add{color:var(--mut)}
+.li.add button{all:unset;display:flex;align-items:center;gap:8px;width:100%;min-height:44px;cursor:pointer;color:var(--mut);font-weight:600}
+.need{display:flex;align-items:center;gap:10px;padding:6px 10px 6px 16px;min-height:62px}
+.need+.need{border-top:1px solid var(--line)}
+.need .main{flex:1;min-width:0;border:0;background:none;text-align:left;padding:6px 0}
+.need .main b{display:block;font-size:16.5px;font-weight:650;overflow-wrap:anywhere}
+.need .main span{display:block;color:var(--mut);font-size:13px;margin-top:1px}
+.pill{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--s3);color:var(--ink2);white-space:nowrap}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.done-btn{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line2);background:none;color:var(--ink2);display:grid;place-items:center;flex:none}
+.done-btn:active{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+.empty-row{padding:18px 16px;color:var(--mut)}
+.suggest{margin-top:12px}
+
+/* склад, смены, люди, журнал */
+.search{position:relative;margin:0 0 12px}
+.search .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
+.search input{padding-left:44px;margin:0}
+input,select,textarea{width:100%;padding:0 15px;min-height:52px;border-radius:14px;border:1px solid var(--line2);background:#150d09;color:var(--ink);margin:0 0 12px}
+textarea{padding:13px 15px;line-height:1.4}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 22px) 22px,calc(100% - 16px) 22px;background-size:6px 6px;background-repeat:no-repeat;padding-right:38px}
+input::placeholder,textarea::placeholder{color:var(--dim)}
+label{display:block;font-size:13.5px;color:var(--mut);margin:0 0 6px 2px}
+.big{font-size:32px;font-weight:750;min-height:68px;text-align:center;letter-spacing:-.02em}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none;margin:0 -16px;padding-left:16px;padding-right:16px}
+.filters::-webkit-scrollbar{display:none}
+.fchip{border:1px solid var(--line2);background:var(--s1);color:var(--ink2);border-radius:99px;min-height:42px;padding:0 16px;white-space:nowrap;font-weight:600;font-size:14.5px}
+.fchip.on{background:var(--foam);color:var(--on-foam);border-color:transparent}
+.prod{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--s1);border-radius:20px;padding:14px 16px;margin:0 0 10px;color:var(--ink)}
+.prod .pn{font-weight:650;font-size:17px;overflow-wrap:anywhere}
+.prod .pm{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.prod .pq{text-align:right;flex:none}
+.prod .pq b{font-size:30px;line-height:1;font-weight:750;letter-spacing:-.02em}
+.prod .pq small{display:block;color:var(--mut);font-size:13px;margin-top:3px}
+.bar{display:block;height:5px;border-radius:9px;background:var(--s3);margin-top:10px;overflow:hidden}
+.bar u{display:block;height:100%;border-radius:9px;background:var(--ok);transition:width .4s var(--ease)}
+.bar.low u{background:var(--bad)}
+.fab{position:fixed;right:max(16px,calc(50% - 264px));bottom:calc(98px + env(safe-area-inset-bottom));z-index:9;border:0;border-radius:99px;background:var(--foam);color:var(--on-foam);font-weight:750;padding:0 22px 0 18px;min-height:54px;display:flex;align-items:center;gap:8px;box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.dayh{font-weight:700;margin:22px 0 10px;font-size:16px}
+.dayh.today{color:var(--foam)}
+.shiftc{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--s1);border-radius:18px;padding:14px 16px;margin:0 0 8px;color:var(--ink)}
+.shiftc.me{border-color:rgba(240,223,194,.4)}
+.shiftc b{font-size:17px}
+.shiftc .t{font-weight:750;font-size:18px;letter-spacing:-.01em;white-space:nowrap}
+.note{color:var(--mut);font-size:13px;margin-top:2px}
+.ev{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.ev i{width:9px;height:9px;border-radius:50%;background:var(--dim);margin-top:7px;flex:none}
+.ev i.bad{background:var(--bad)}.ev i.ok{background:var(--ok)}.ev i.warn{background:var(--warn)}.ev i.acc{background:var(--foam)}
+.ev .b{min-width:0;flex:1;line-height:1.35}
+.ev .b b{font-weight:650}
+.ev .tm{color:var(--mut);font-size:13px;white-space:nowrap;margin-top:2px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--s3);color:var(--foam);display:grid;place-items:center;font-weight:750;font-size:18px;flex:none}
+.pers{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--s1);border-radius:18px;padding:12px 14px;margin:0 0 8px;color:var(--ink)}
+.pers .pn{flex:1;min-width:0;font-weight:650;font-size:17px}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 10px}
+.card.warnbg{background:var(--warnbg);border-color:transparent}
+.rowb{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.menu{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:1px solid var(--line);background:var(--s1);border-radius:18px;padding:14px 16px;margin:0 0 10px;color:var(--ink);font-weight:650;text-align:left}
+.strip{display:flex;gap:6px;justify-content:space-between;margin-top:14px}
+.sd{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--mut);font-size:12.5px;padding:2px 0}
+.sd i{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line2);display:grid;place-items:center}
+.sd i .ic{width:17px;height:17px;stroke-width:2.6}
+.sd.ok i{background:var(--okbg);border-color:transparent;color:var(--ok)}
+.sd.part i{border-color:var(--warn);border-style:dashed}
+.sd.cur span{color:var(--ink);font-weight:700}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0}
+.kv+.kv{border-top:1px solid var(--line)}
+.badge{font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--s3);color:var(--ink2)}
+.badge.bad{background:var(--badbg);color:var(--bad)}.badge.warn{background:var(--warnbg);color:var(--warn)}.badge.ok{background:var(--okbg);color:var(--ok)}
+.err{background:var(--badbg);color:var(--bad);padding:12px 14px;border-radius:14px;margin:0 0 12px;font-size:14.5px}
+.empty{text-align:center;color:var(--mut);padding:34px 12px}
+.dayh .pair{display:block;color:var(--mut);font-weight:600;font-size:13.5px;margin-top:2px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.opts label{position:relative;margin:0;display:flex;align-items:center;justify-content:center;min-height:50px;padding:0 10px;border-radius:14px;border:1px solid var(--line2);background:var(--s2);color:var(--ink2);font-weight:650;font-size:15px;text-align:center;cursor:pointer}
+.opts input{position:absolute;opacity:0;width:1px;height:1px;min-height:0;margin:0;padding:0}
+.opts label:has(input:checked){background:var(--foam);color:var(--on-foam);border-color:transparent}
+.opts label:has(input:focus-visible){outline:2px solid var(--foam);outline-offset:2px}
+
+/* нижняя панель */
+.tabs{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:536px;margin:0 auto;display:flex;gap:2px;padding:6px;border-radius:28px;
+  background:rgba(38,26,19,.86);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line2);box-shadow:0 12px 34px rgba(0,0,0,.55);z-index:10}
+.tabs button{flex:1;border:0;background:none;color:var(--mut);padding:8px 0 6px;border-radius:22px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:650;position:relative;min-width:0}
+.tabs button.on{color:var(--foam);background:rgba(240,223,194,.12)}
+.tabs .dot{position:absolute;top:3px;left:calc(50% + 6px);background:var(--bad);color:#2a0d0a;border-radius:99px;font-size:11px;font-weight:800;min-width:18px;height:18px;line-height:18px;text-align:center;padding:0 5px;font-style:normal}
+
+/* шторки */
+.sheet-bg{position:fixed;inset:0;background:rgba(10,5,3,.62);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--s1);border-top:1px solid var(--line2);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:28px 28px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.sheet-bg:not(.still){animation:fadein .2s ease both}
+.sheet-bg:not(.still) .sheet{animation:sheetin .36s var(--ease) both}
+@keyframes sheetin{from{transform:translateY(100%)}to{transform:none}}
+.sheet-bg.closing{animation:fadeout .18s ease forwards}
+.sheet-bg.closing .sheet{animation:sheetout .2s ease-in forwards}
+@keyframes fadeout{to{opacity:0}}@keyframes sheetout{to{transform:translateY(100%)}}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line2);margin:0 auto 14px}
+.sheet h3{margin:0 0 4px;font-size:23px;font-weight:750;letter-spacing:-.015em}
+.sheet .sub{color:var(--mut);font-size:14px}
+.sheet h2{font-size:16px;margin:22px 0 10px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stack>*+*{margin-top:8px}
+
+/* уведомление */
+#toast{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:40;pointer-events:none;padding:0 16px}
+.toast{pointer-events:auto;background:var(--s3);color:var(--ink);border:1px solid var(--line2);padding:12px 12px 12px 18px;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.5);display:flex;align-items:center;gap:14px;max-width:100%;animation:toastin .28s var(--ease) both;font-weight:600;font-size:15px}
+.toast button{border:0;background:rgba(240,223,194,.14);color:var(--foam);font-weight:700;border-radius:11px;min-height:38px;padding:0 14px;font-size:14.5px}
+@keyframes toastin{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+
+/* вход */
+.center{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:28px 24px;max-width:420px;margin:0 auto}
+.logo{display:grid;place-items:center;margin-bottom:16px}
+.logo .mark{width:84px;height:84px;border-radius:26px;background:var(--foam);color:var(--on-foam);display:grid;place-items:center}
+.logo .ic{width:46px;height:46px;stroke-width:1.6}
+.auth-t{text-align:center;margin:0;font-size:30px;font-weight:750;letter-spacing:-.02em}
+.auth-s{text-align:center;color:var(--mut);margin:6px 0 26px}
+.link{background:none;border:0;color:var(--ink2);font-weight:650;min-height:50px;width:100%;margin-top:4px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="sheet"></div>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ---------- настройки и клиент ---------- */
+const cfg = window.CAFE_CONFIG || {};
+const cfgOk = !!(cfg.url && cfg.key && !/ВСТАВЬ/.test(cfg.url + cfg.key));
+const sb = (cfgOk && window.supabase) ? window.supabase.createClient(cfg.url, cfg.key) : null;
+
+const UNITS = ['шт','л','кг','г','уп','порц'];
+const REASONS = ['Просрочка','Брак','Уронили','Для персонала','Другое'];
+const ROLE_RU = {pending:'Ждёт подтверждения',worker:'Работник',admin:'Админ',owner:'Владелец',blocked:'Заблокирован'};
+const KIND = {writeoff:'Списания', lunch:'Обеды'};
+const ACT = {
+  restock:'принял(а)', writeoff:'списал(а)', set:'пересчитал(а)',
+  add_product:'добавил(а) продукт', edit_product:'изменил(а) продукт', delete_product:'удалил(а) продукт',
+  role:'изменил(а) доступ', shift_add:'добавил(а) смену', shift_edit:'изменил(а) смену', shift_del:'удалил(а) смену',
+  report_add:'внёс(ла) в отчёт', report_edit:'исправил(а) в отчёте', report_del:'удалил(а) из отчёта',
+  report_submit:'сдал(а) отчёт', report_reopen:'открыл(а) отчёт снова',
+  need_add:'отметил(а)', need_edit:'изменил(а) статус', need_done:'отметил(а) «привезли»', need_del:'убрал(а) из списка',
+  note_add:'записал(а) в заметки смены', note_done:'закрыл(а) заметку', note_del:'удалил(а) заметку'
+};
+const DOT = {writeoff:'bad', restock:'ok', set:'warn', report_add:'acc', report_edit:'acc', report_del:'acc', report_submit:'ok', report_reopen:'warn',
+  need_add:'warn', need_edit:'warn', need_done:'ok', need_del:'', shift_add:'', shift_edit:'', shift_del:'',
+  note_add:'warn', note_done:'ok', note_del:''};
+const SOURCES = {supplier:'Поставщик', smoothie:'Взяли из «Смузи»'};
+const PAID = {cash:'из кассы', own:'свои деньги'};
+const NO_SUPPLIER = 'Без поставщика';
+const PRESETS = {
+  writeoff:['американо','капучино','запеканка','сэндвич','трайфл','булка с ветчиной','донат','чизкейк шоколадный','морковный торт','птичка','макарон','капкейк'],
+  lunch:['борщ','по-купечески','столичный','винегрет','рис','греча','макароны','пицца'],
+  need:['крышки большие','крышки маленькие','стаканы M 300 мл','пакеты мусорные маленькие','молоко 3.2%','сливки','горячий шоколад','какао','вода не газ маленькая']
+};
+const LOG_GROUPS = {
+  all:['Все',null],
+  writeoff:['Списания',['writeoff']],
+  restock:['Приход',['restock']],
+  set:['Пересчёт',['set']],
+  report:['Отчёт',['report_add','report_edit','report_del','report_submit','report_reopen','need_add','need_edit','need_done','need_del','note_add','note_done','note_del']],
+  shift:['Смены',['shift_add','shift_edit','shift_del']],
+  other:['Прочее',['add_product','edit_product','delete_product','role']]
+};
+
+const S = {
+  booting:true, session:null, me:null, tab:'report', tabInit:false, lastTab:null, authMode:'in', authErr:'',
+  products:[], logs:[], shifts:[], people:[], report:[], needs:[], dayReports:[], week:[], notes:[], openNotes:[],
+  names:{writeoff:[],lunch:[],need:[]},
+  reportDay:'', q:'', stockFilter:'all', logUser:'all', logType:'all', showPast:false, sheet:null, bump:null
+};
+
+/* ---------- иконки ---------- */
+const P = {
+  home:'<path d="M4 11.4 12 4.2l8 7.2V19a1 1 0 0 1-1 1h-4.4v-5.6H9.4V20H5a1 1 0 0 1-1-1z"/>',
+  report:'<rect x="5" y="4.5" width="14" height="16.5" rx="2.6"/><path d="M9.2 4.5V3.4h5.6v1.1M9 13l2.2 2.2L15.4 11"/>',
+  box:'<path d="M12 3.2 19.8 7.6v8.8L12 20.8l-7.8-4.4V7.6z"/><path d="M4.4 7.7 12 12l7.6-4.3M12 12v8.6"/>',
+  cal:'<rect x="4" y="5.6" width="16" height="14.6" rx="2.8"/><path d="M4 10.2h16M8.6 3.6v3.6M15.4 3.6v3.6"/>',
+  clock:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.9"/>',
+  user:'<circle cx="12" cy="8.6" r="3.5"/><path d="M5.2 20c.9-3.6 3.5-5.4 6.8-5.4s5.9 1.8 6.8 5.4"/>',
+  people:'<circle cx="9" cy="8.8" r="3.2"/><path d="M3.6 19.4c.7-3.2 2.9-4.8 5.4-4.8s4.7 1.6 5.4 4.8"/><path d="M15.6 5.8a3 3 0 0 1 0 5.9M17.4 14.8c1.8.5 3 2 3.5 4.6"/>',
+  plus:'<path d="M12 5.5v13M5.5 12h13"/>',
+  minus:'<path d="M5.5 12h13"/>',
+  check:'<path d="m5.5 12.6 4.1 4.1 8.9-9.4"/>',
+  left:'<path d="m14.5 5.5-6.5 6.5 6.5 6.5"/>',
+  right:'<path d="m9.5 5.5 6.5 6.5-6.5 6.5"/>',
+  refresh:'<path d="M19.5 12a7.5 7.5 0 1 1-2.3-5.4"/><path d="M19.6 4.6v4.2h-4.2"/>',
+  copy:'<rect x="8.5" y="8.5" width="11" height="11" rx="2.4"/><path d="M15.5 8.5V6.6a2 2 0 0 0-2-2H6.6a2 2 0 0 0-2 2v6.9a2 2 0 0 0 2 2h1.9"/>',
+  send:'<path d="M20.5 3.8 3.6 10.6l6.3 2.5 2.5 6.3z"/><path d="m9.9 13.1 10.6-9.3"/>',
+  down:'<path d="M12 4.5v11M7.2 11l4.8 4.8 4.8-4.8M5 19.5h14"/>',
+  search:'<circle cx="11" cy="11" r="6.4"/><path d="m16 16 4 4"/>',
+  wrench:'<path d="M14.7 6.3a4 4 0 0 0 4.9 4.9l-8.5 8.5a2.1 2.1 0 0 1-3-3z"/><path d="M14.7 6.3 17 4l3 3-2.3 2.3"/>',
+  receipt:'<path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-1.2-.8-1.2.8-2.4-1.5L6 20.5z"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/>',
+  cup:'<path d="M5.5 10h10.8v4.6a4.6 4.6 0 0 1-4.6 4.6H10.1a4.6 4.6 0 0 1-4.6-4.6z"/><path d="M16.3 11.2h1.3a2.3 2.3 0 0 1 0 4.6h-1.9"/><path d="M8.6 3.4c-.9 1.1.9 1.8 0 3M12.6 3.4c-.9 1.1.9 1.8 0 3"/>'
+};
+const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+
+/* ---------- мелкие помощники ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => (+n).toLocaleString('ru-RU', {maximumFractionDigits:3});
+const raw = n => fmt(n).replace(/\s/g,'').replace(',','.');
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+const startOfToday = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const dmy = s => { const [y,m,d] = s.split('-'); return d + '.' + m; };
+const hm = t => String(t).slice(0,5);
+const when = at => new Date(at).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const timeOf = at => new Date(at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+const dmDate = at => { const d = new Date(at); return pad(d.getDate()) + '.' + pad(d.getMonth()+1); };
+const dayLabel = s => new Date(s + 'T00:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+const cap = s => s.replace(/^./, c => c.toUpperCase());
+const num = v => { const n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isNaN(n) ? null : n; };
+const plural = (n, f) => { const a = Math.abs(n) % 100, b = a % 10; return f[(a > 10 && a < 20) ? 2 : b > 1 && b < 5 ? 1 : b === 1 ? 0 : 2]; };
+const isAdmin = () => !!S.me && (S.me.role === 'admin' || S.me.role === 'owner');
+const isStaff = () => !!S.me && ['worker','admin','owner'].includes(S.me.role);
+const emailOf = login => login.trim().toLowerCase() + '@cafe-staff.app';
+const loginOf = email => String(email || '').split('@')[0];
+const buzz = () => { try{ navigator.vibrate && navigator.vibrate(8); }catch(e){} };
+S.reportDay = iso(startOfToday());
+
+function dayShort(d){
+  const t = startOfToday();
+  if (d === iso(t)) return 'Сегодня';
+  if (d === iso(addDays(t,-1))) return 'Вчера';
+  return cap(dayLabel(d));
+}
+function greet(){
+  const h = new Date().getHours();
+  return h < 5 ? 'Доброй ночи' : h < 12 ? 'Доброе утро' : h < 18 ? 'Добрый день' : 'Добрый вечер';
+}
+function toast(msg, act){
+  const t = $('#toast');
+  t.innerHTML = '<div class="toast"><span>' + esc(msg) + '</span>' + (act ? `<button data-a="toastAct">${esc(act.label)}</button>` : '') + '</div>';
+  toast.act = act && act.fn;
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.innerHTML = '', act ? 4500 : 3000);
+}
+function ru(msg){
+  msg = String(msg || '');
+  if (/Invalid login/i.test(msg)) return 'Неверный логин или пароль';
+  if (/already registered|already been registered/i.test(msg)) return 'Такой логин уже занят';
+  if (/not confirmed/i.test(msg)) return 'В Supabase включено подтверждение почты. Его нужно выключить (см. инструкцию)';
+  if (/at least/i.test(msg)) return 'Пароль минимум 6 символов';
+  if (/rate limit/i.test(msg)) return 'Слишком много попыток, подождите минуту';
+  if (/fetch|network|Failed/i.test(msg)) return 'Нет связи, попробуйте ещё раз';
+  return msg;
+}
+async function rpc(name, args){ const {error} = await sb.rpc(name, args); if (error) throw error; }
+
+/* ---------- загрузка данных ---------- */
+async function loadProducts(){ const {data,error} = await sb.from('products').select('*').order('name'); if (error) throw error; S.products = data || []; }
+async function loadLogs(){ const {data,error} = await sb.from('audit_log').select('*').order('at',{ascending:false}).limit(400); if (error) throw error; S.logs = data || []; }
+async function loadShifts(){
+  const {data,error} = await sb.from('shifts').select('*, profiles(name)').gte('day', iso(addDays(startOfToday(), -7))).order('day').order('start_time');
+  if (error) throw error; S.shifts = data || [];
+}
+async function loadPeople(){ const {data,error} = await sb.from('profiles').select('*').order('created_at'); if (error) throw error; S.people = data || []; }
+async function loadReport(){ const {data,error} = await sb.from('report_items').select('*').eq('day', S.reportDay).order('created_at'); if (error) throw error; S.report = data || []; }
+async function loadNeeds(){ const {data,error} = await sb.from('need_items').select('*').is('resolved_at', null).order('created_at'); if (error) throw error; S.needs = data || []; }
+async function loadNotes(){ const {data,error} = await sb.from('shift_notes').select('*').eq('day', S.reportDay).order('created_at'); if (error) throw error; S.notes = data || []; }
+async function loadOpenNotes(){
+  const {data,error} = await sb.from('shift_notes').select('*').or('resolved_at.is.null,day.gte.' + iso(addDays(startOfToday(), -1))).order('created_at',{ascending:false}).limit(100);
+  if (error) throw error; S.openNotes = data || [];
+}
+async function loadDayReports(){ const {data,error} = await sb.from('day_reports').select('*').gte('day', iso(addDays(startOfToday(), -21))); if (error) throw error; S.dayReports = data || []; }
+async function loadWeek(){
+  const {data,error} = await sb.from('report_items').select('kind,name,qty,day,user_name').gte('day', iso(addDays(startOfToday(), -6))).limit(1500);
+  if (error) throw error; S.week = data || [];
+}
+function topNames(rows, preset){
+  const m = new Map();
+  rows.forEach(r => { const k = String(r.name).trim().toLowerCase(); if (!k) return; const e = m.get(k) || {n:r.name.trim(), c:0}; e.c++; m.set(k, e); });
+  const a = [...m.values()].sort((x,y) => y.c - x.c).map(e => e.n).slice(0, 14);
+  preset.forEach(p => { if (a.length < 14 && !a.some(x => x.toLowerCase() === p.toLowerCase())) a.push(p); });
+  return a;
+}
+async function loadNames(){
+  const r1 = await sb.from('report_items').select('kind,name').gte('day', iso(addDays(startOfToday(), -45))).limit(2000); if (r1.error) throw r1.error;
+  const r2 = await sb.from('need_items').select('name').order('created_at',{ascending:false}).limit(400); if (r2.error) throw r2.error;
+  const rows = r1.data || [];
+  S.names = {writeoff:topNames(rows.filter(x => x.kind==='writeoff'), PRESETS.writeoff), lunch:topNames(rows.filter(x => x.kind==='lunch'), PRESETS.lunch), need:topNames(r2.data || [], PRESETS.need)};
+}
+async function setDay(d){ S.reportDay = d; try{ await Promise.all([loadReport(), loadNotes()]); }catch(e){ toast(ru(e.message)); } render(); }
+async function loadAll(){
+  try{
+    const {data:{session}} = await sb.auth.getSession();
+    S.session = session;
+    if (!session){ S.me = null; return; }
+    const {data:me,error} = await sb.from('profiles').select('*').eq('id', session.user.id).maybeSingle();
+    if (error) throw error;
+    S.me = me;
+    if (!isStaff()) return;
+    if (!S.tabInit){ S.tab = isAdmin() ? 'home' : 'report'; S.tabInit = true; }
+    const jobs = [loadProducts(), loadLogs(), loadShifts(), loadReport(), loadNeeds(), loadNames(), loadDayReports(), loadNotes()];
+    if (isAdmin()) jobs.push(loadPeople(), loadWeek(), loadOpenNotes());
+    await Promise.all(jobs);
+  }catch(e){ toast(ru(e.message)); }
+  finally{ S.booting = false; render(); }
+}
+async function quickRefresh(){
+  if (!S.me || S.sheet || pending || waiting) return;
+  const a = document.activeElement; if (a && /INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+  await loadAll();
+}
+
+/* ---------- отрисовка ---------- */
+function render(){
+  const app = $('#app');
+  const y = window.scrollY, same = S.lastTab === S.tab;
+  const bumpKey = S.bump; S.bump = null; render.bump = bumpKey;
+  if (!cfgOk || !sb){
+    app.innerHTML = `<div class="center"><div class="logo"><div class="mark">${ic('cup')}</div></div><h1 class="auth-t">Нужна настройка</h1>
+      <p class="auth-s">${!cfgOk ? 'Откройте файл config.js и вставьте адрес и ключ проекта Supabase (инструкция в README).' : 'Не загрузилась библиотека. Проверьте интернет и обновите страницу.'}</p></div>`;
+    return drawSheet();
+  }
+  if (S.booting){ app.innerHTML = `<div class="center"><div class="logo"><div class="mark">${ic('cup')}</div></div></div>`; return drawSheet(); }
+  if (!S.session){ app.innerHTML = authHtml(); return drawSheet(); }
+  if (!S.me){ app.innerHTML = waitHtml('Профиль не найден', 'Выйдите и зарегистрируйтесь заново. Если не помогает, проверьте, что в Supabase выполнен schema.sql.'); return drawSheet(); }
+  if (S.me.role === 'pending'){ app.innerHTML = waitHtml('Ждём подтверждения', 'Вы зарегистрированы как ' + esc(S.me.name) + '. Админ должен вас принять, потом нажмите «Проверить».'); return drawSheet(); }
+  if (S.me.role === 'blocked'){ app.innerHTML = waitHtml('Доступ закрыт', 'Обратитесь к администратору.', true); return drawSheet(); }
+
+  const tabs = [['report','report','Отчёт'],['stock','box','Склад'],['shifts','cal','Смены'],['log','clock','Журнал'],['me','user','Кабинет']];
+  if (isAdmin()) tabs.unshift(['home','home','Сводка']);
+  const pend = isAdmin() ? S.people.filter(p => p.role === 'pending').length : 0;
+  app.innerHTML = `<main class="${same ? '' : 'enter'}">` + screenHtml() + '</main><nav class="tabs">' +
+    tabs.map(t => { const on = S.tab === t[0] || (S.tab === 'people' && t[0] === 'me');
+      return `<button class="${on?'on':''}" data-a="tab" data-v="${t[0]}">${ic(t[1])}${t[2]}${t[0]==='me'&&pend?`<i class="dot">${pend}</i>`:''}</button>`; }).join('') + '</nav>' +
+    (S.tab==='stock' && isAdmin() ? `<button class="fab" data-a="newProduct">${ic('plus')}Продукт</button>` : '') +
+    (S.tab==='shifts' && isAdmin() ? `<button class="fab" data-a="newShift">${ic('plus')}Смена</button>` : '');
+  window.scrollTo(0, same ? y : 0);
+  S.lastTab = S.tab;
+  drawSheet();
+}
+
+function waitHtml(title, text, noRefresh){
+  return `<div class="center"><div class="logo"><div class="mark">${ic('cup')}</div></div><h1 class="auth-t">${title}</h1>
+    <p class="auth-s">${text}</p>
+    ${noRefresh ? '' : '<button class="btn" data-a="refresh">Проверить</button>'}
+    <button class="link" data-a="logout">Выйти</button></div>`;
+}
+function authHtml(){
+  const up = S.authMode === 'up';
+  return `<div class="center"><div class="logo"><div class="mark">${ic('cup')}</div></div><h1 class="auth-t">Склад кафе</h1>
+    <p class="auth-s">${up ? 'Создайте аккаунт, админ подтвердит доступ' : 'Войдите, чтобы вести смену'}</p>
+    ${S.authErr ? `<div class="err">${esc(S.authErr)}</div>` : ''}
+    <form data-f="auth" autocomplete="on">
+      ${up ? `<label>Имя, его увидят в журнале</label><input name="name" placeholder="Например, Илья" required autocomplete="name">` : ''}
+      <label>Логин латиницей или цифрами</label>
+      <input name="login" placeholder="ilya" required autocapitalize="none" autocorrect="off" autocomplete="username" pattern="[A-Za-z0-9._\\-]{3,20}">
+      <label>Пароль, минимум 6 символов</label>
+      <input name="pass" type="password" required minlength="6" autocomplete="${up?'new-password':'current-password'}">
+      <button class="btn" type="submit" style="margin-top:4px">${up ? 'Зарегистрироваться' : 'Войти'}</button>
+    </form>
+    <button class="link" data-a="authMode">${up ? 'У меня уже есть аккаунт' : 'Первый раз здесь? Зарегистрироваться'}</button></div>`;
+}
+function screenHtml(){
+  if (S.tab === 'home' && isAdmin()) return homeHtml();
+  if (S.tab === 'report') return reportHtml();
+  if (S.tab === 'stock') return stockHtml();
+  if (S.tab === 'log') return logHtml();
+  if (S.tab === 'shifts') return shiftsHtml();
+  if (S.tab === 'people') return peopleHtml();
+  return meHtml();
+}
+const header = (title, sub, extra) => `<div class="hd"><div><h1>${title}</h1>${sub ? `<div class="sub">${sub}</div>` : ''}</div>${extra === undefined ? `<button class="ibtn" data-a="refresh" aria-label="Обновить">${ic('refresh')}</button>` : extra}</div>`;
+
+/* ================= ОТЧЁТ ================= */
+const nkey = n => String(n).trim().toLowerCase();
+function findRow(k, n){ return S.report.find(r => r.kind === k && nkey(r.name) === nkey(n)); }
+const qtyOf = (k, n) => { const r = findRow(k, n); return r ? r.qty : null; };
+function kindNames(k){
+  const seen = new Set(), out = [];
+  S.names[k].concat(S.report.filter(r => r.kind === k).map(r => r.name)).forEach(n => { const key = nkey(n); if (key && !seen.has(key)){ seen.add(key); out.push(n.trim()); } });
+  return out;
+}
+function chipHtml(k, n){
+  const q = qtyOf(k, n) || 0, key = k + '|' + nkey(n), b = render.bump === key ? ' bump' : '';
+  const d = `data-k="${k}" data-n="${esc(n)}"`;
+  if (!q) return `<button class="chip" data-a="inc" ${d}>${esc(n)}</button>`;
+  return `<div class="chip on"><button class="cb" data-a="dec" ${d} aria-label="Минус">${ic('minus')}</button>
+    <button class="nm" data-a="num" ${d}>${esc(n)}<b class="cnt${b}">${fmt(q)}</b></button>
+    <button class="cb" data-a="inc" ${d} aria-label="Плюс">${ic('plus')}</button></div>`;
+}
+function lunchRow(n){
+  const q = qtyOf('lunch', n), key = 'lunch|' + nkey(n), b = render.bump === key ? ' bump' : '';
+  const d = `data-k="lunch" data-n="${esc(n)}"`;
+  return `<div class="li"><span class="ln">${esc(n)}</span><div class="step">
+    <button class="sb" data-a="dec" ${d} aria-label="Минус">${ic('minus')}</button>
+    <button class="sn${q == null ? ' empty' : ''}${b}" data-a="num" ${d}>${q == null ? '' : fmt(q)}</button>
+    <button class="sb" data-a="inc" ${d} aria-label="Плюс">${ic('plus')}</button></div></div>`;
+}
+function reportHtml(){
+  const today = iso(startOfToday());
+  const dr = S.dayReports.find(x => x.day === S.reportDay);
+  const n = S.report.length;
+  const last = S.report.reduce((m, r) => { const t = r.updated_at || r.created_at; return t > m ? t : m; }, '');
+  const ticket = dr
+    ? `<div class="ticket done"><div class="t-main"><b>${ic('check')}Отчёт сдан</b><span>${esc(dr.submitted_by || '')}, ${timeOf(dr.submitted_at)}</span></div>
+        <div class="t-stub"><button class="soft" data-a="reopen">Открыть снова</button></div></div>`
+    : `<div class="ticket"><div class="t-main"><b>${n ? 'Отчёт ведётся' : 'Пока пусто'}</b>
+        <span>${n ? n + ' ' + plural(n, ['запись','записи','записей']) + ', обновлён в ' + timeOf(last) : 'Нажимайте на позиции ниже в течение дня'}</span></div>
+        <div class="t-stub"><button data-a="submit">Сдать отчёт</button></div></div>`;
+  const needs = S.needs.map(x => `<div class="need"><button class="main" data-a="needItem" data-id="${x.id}"><b>${esc(x.name)}</b>
+      <span>${esc(x.created_by || '')}, ${dmDate(x.created_at)}${x.note ? ', ' + esc(x.note) : ''}</span></button>
+      <span class="pill ${x.status==='out'?'bad':'warn'}">${x.status==='out' ? 'закончилось' : 'заканчивается'}</span>
+      <button class="done-btn" data-a="needDone" data-id="${x.id}" aria-label="Привезли">${ic('check')}</button></div>`).join('');
+  const openNames = new Set(S.needs.map(x => nkey(x.name)));
+  const sugg = S.names.need.filter(x => !openNames.has(nkey(x)));
+  return header(S.reportDay === today ? greet() + ', ' + esc(S.me.name) : dayShort(S.reportDay), S.reportDay === today ? cap(dayLabel(today)) : '') +
+    `<div class="daybar"><button class="ibtn" data-a="dayPrev" aria-label="Раньше">${ic('left')}</button>
+      <div class="d"><b>${dayShort(S.reportDay)}</b><span>${S.reportDay.split('-').reverse().join('.')}</span></div>
+      <button class="ibtn" data-a="dayNext" ${S.reportDay >= today ? 'disabled' : ''} aria-label="Позже">${ic('right')}</button></div>` +
+    ticket +
+    `<div class="h2row"><h2>Списания</h2><span class="hint">нажмите, чтобы добавить</span></div>
+     <div class="chips">${kindNames('writeoff').map(x => chipHtml('writeoff', x)).join('')}<button class="chip add" data-a="addItem" data-k="writeoff">${ic('plus')}Другое</button></div>
+     <div class="h2row"><h2>Обеды</h2><span class="hint">сколько порций</span></div>
+     <div class="list">${kindNames('lunch').map(lunchRow).join('')}<div class="li add"><button data-a="addItem" data-k="lunch">${ic('plus')}Другое блюдо</button></div></div>
+     <div class="h2row"><h2>Закончилось</h2><span class="hint">список общий</span></div>
+     <div class="list">${needs || '<div class="empty-row">Всё есть. Если что-то закончилось, нажмите на название ниже.</div>'}</div>
+     <div class="chips suggest">${sugg.slice(0, 9).map(x => `<button class="chip" data-a="needQuick" data-n="${esc(x)}">${esc(x)}</button>`).join('')}<button class="chip add" data-a="addNeed">${ic('plus')}Другое</button></div>
+     <div class="h2row"><h2>Заметки смены</h2><span class="hint">траты и поломки</span></div>
+     ${S.notes.length ? '<div class="list">' + S.notes.map(n => noteRow(n, false)).join('') + '</div>' : ''}
+     <div class="chips${S.notes.length ? ' suggest' : ''}"><button class="chip add" data-a="addNote" data-v="purchase">${ic('receipt')}Покупка по чеку</button><button class="chip add" data-a="addNote" data-v="issue">${ic('wrench')}Поломка или заметка</button></div>
+     <button class="linkbtn" data-a="reportText">${ic('send')}Текст отчёта для Telegram</button>`;
+}
+function reportText(){
+  const rows = k => S.report.filter(r => r.kind === k).map(r => r.name + (r.qty == null ? '' : ' ' + fmt(r.qty)));
+  const w = rows('writeoff'), l = rows('lunch');
+  return S.reportDay.split('-').reverse().join('.') + '\nсписания:\n' + (w.join('\n') || 'нет') +
+    '\n\nобеды:\n' + (l.join('\n') || 'нет') +
+    '\n\nзакончилось/заканчивается:\n' + (S.needs.map(n => n.name + (n.status === 'low' ? ' (заканчивается)' : '')).join('\n') || 'всё есть') +
+    (S.notes.length ? '\n\nзаметки смены:\n' + S.notes.map(noteText).join('\n') : '');
+}
+/* заметки смены: покупки по чеку и поломки */
+const noteText = n => n.kind === 'purchase' ? n.text + ', ' + fmt(n.amount) + ' ₽ (' + PAID[n.paid_from || 'cash'] + ')' : n.text;
+function noteRow(n, board){
+  const pill = n.resolved_at ? `<span class="pill ok">${n.kind === 'purchase' ? 'учтено' : 'решено'}</span>`
+    : n.kind === 'purchase' ? `<span class="pill ${n.paid_from === 'own' ? 'warn' : ''}">${fmt(n.amount)} ₽</span>` : '<span class="pill bad">заметка</span>';
+  const sub = esc(n.user_name || '') + ', ' + (board ? dmy(n.day) + ' ' : '') + timeOf(n.created_at) + (n.kind === 'purchase' ? ', ' + PAID[n.paid_from || 'cash'] : '');
+  return `<div class="need"${n.resolved_at ? ' style="opacity:.6"' : ''}><button class="main" data-a="noteItem" data-id="${n.id}"><b>${esc(n.text)}</b><span>${sub}</span></button>${pill}
+    ${board && !n.resolved_at ? `<button class="done-btn" data-a="noteDone" data-id="${n.id}" aria-label="${n.kind === 'purchase' ? 'Учтено' : 'Решено'}">${ic('check')}</button>` : ''}</div>`;
+}
+const noteById = id => S.notes.find(x => x.id === id) || S.openNotes.find(x => x.id === id);
+async function reloadNotes(){ await Promise.all([loadNotes()].concat(isAdmin() ? [loadOpenNotes()] : [])); }
+/* строки как в чате: "2 запеканки", "рис 2", "винегрет - 4", "капучино" */
+function parseLines(text, withQty){
+  return String(text || '').split(/\n+/).map(l => l.replace(/^[\s•*\-–]+/, '').trim()).filter(Boolean).map(l => {
+    if (!withQty) return {name:l};
+    let m;
+    if ((m = l.match(/^(\d+(?:[.,]\d+)?)\s*(?:шт\.?|порц\.?)?\s*[-–:]?\s+(.+)$/i)) || (m = l.match(/^(\d+(?:[.,]\d+)?)()\s*([^\d\s].*)$/))){
+      const nm = (m[3] || m[2]).trim();
+      if (nm) return {name:nm, qty:parseFloat(m[1].replace(',','.'))};
+    }
+    if ((m = l.match(/^(.+?)\s*[-–:]?\s*(\d+(?:[.,]\d+)?)$/)) && m[1].trim()) return {name:m[1].trim().replace(/[-–:]$/,'').trim(), qty:parseFloat(m[2].replace(',','.'))};
+    return {name:l};
+  });
+}
+/* "запеканки" -> уже известное "запеканка", чтобы не плодить варианты */
+function canonName(name, known){
+  const a = name.trim().toLowerCase();
+  for (const k of known){
+    const b = k.toLowerCase();
+    if (a === b) return k;
+    let i = 0; while (i < a.length && i < b.length && a[i] === b[i]) i++;
+    if (i >= 4 && i >= Math.min(a.length, b.length) - 2 && !/\d/.test(a.slice(i)) && !/\d/.test(b.slice(i))) return k;
+  }
+  return name.trim();
+}
+
+/* --- быстрые правки: сразу на экране, на сервер уходят следом --- */
+let pending = 0, waiting = 0, chain = Promise.resolve(), syncT = null;
+const lunchT = {};
+function send(fn){
+  pending++;
+  chain = chain.then(fn).catch(e => { toast(ru(e.message)); }).finally(() => { pending--; scheduleSync(); });
+}
+function scheduleSync(){
+  clearTimeout(syncT);
+  syncT = setTimeout(async () => {
+    if (pending || waiting) return;
+    try{ await Promise.all([loadReport(), loadNeeds(), loadDayReports(), loadNames()]); }catch(e){}
+    render();
+  }, 700);
+}
+function localSet(k, n, val, user){
+  let r = findRow(k, n);
+  if (!r){ r = {id:'tmp' + Date.now() + Math.random(), day:S.reportDay, kind:k, name:n.trim(), qty:0, user_name:S.me.name, created_at:new Date().toISOString()}; S.report.push(r); }
+  r.qty = Math.max(0, val); r.user_name = S.me.name; r.updated_at = new Date().toISOString();
+  if (k === 'writeoff' && r.qty <= 0) S.report = S.report.filter(x => x !== r);
+}
+function change(k, n, delta){
+  const day = S.reportDay, cur = qtyOf(k, n) || 0;
+  if (k === 'writeoff' && delta < 0 && !cur) return;
+  buzz();
+  if (k === 'writeoff'){
+    localSet(k, n, cur + delta);
+    S.bump = k + '|' + nkey(n); render();
+    send(() => rpc('change_report_item', {p_day:day, p_kind:k, p_name:n, p_delta:delta, p_set:false}));
+    if (delta > 0 && cur === 0) toast('Списано: ' + n, {label:'Отменить', fn:() => change(k, n, -1)});
+  }else{
+    const nv = Math.max(0, cur + delta);
+    if (cur === 0 && delta < 0 && qtyOf(k, n) != null) return;
+    localSet(k, n, nv);
+    S.bump = k + '|' + nkey(n); render();
+    waiting++; clearTimeout(lunchT[nkey(n)]);
+    lunchT[nkey(n)] = setTimeout(() => { waiting--; send(() => rpc('change_report_item', {p_day:day, p_kind:k, p_name:n, p_delta:nv, p_set:true})); }, 550);
+  }
+}
+function setExact(k, n, v){
+  const day = S.reportDay;
+  localSet(k, n, v); S.bump = k + '|' + nkey(n); render();
+  send(() => rpc('change_report_item', {p_day:day, p_kind:k, p_name:n, p_delta:v, p_set:true}));
+}
+
+/* ================= СВОДКА (админ) ================= */
+/* товар со склада по названию из списка «закончилось»: "молоко 3.2" -> "Молоко 3.2%" */
+function productByName(name){
+  const k = nkey(name); if (!k) return null;
+  return S.products.find(p => nkey(p.name) === k) || S.products.find(p => nkey(p.name) === nkey(canonName(name, S.products.map(x => x.name)))) || null;
+}
+const supplierOf = p => (p && p.supplier && p.supplier.trim()) || NO_SUPPLIER;
+function suppliers(){ return [...new Set(S.products.map(p => (p.supplier || '').trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b, 'ru')); }
+/* items: [{sup, line}] -> текст, разбитый по поставщикам */
+function groupedOrder(items, empty){
+  if (!items.length) return empty;
+  const g = new Map();
+  items.forEach(x => { if (!g.has(x.sup)) g.set(x.sup, []); g.get(x.sup).push(x.line); });
+  const keys = [...g.keys()].sort((a,b) => (a === NO_SUPPLIER) - (b === NO_SUPPLIER) || a.localeCompare(b, 'ru'));
+  return 'Нужно заказать:\n\n' + keys.map(k => k + ':\n' + g.get(k).map(l => '• ' + l).join('\n')).join('\n\n');
+}
+const lowLine = p => `${p.name}: осталось ${fmt(p.qty)} ${p.unit} (минимум ${fmt(p.min_qty)})`;
+function orderAllText(){
+  const used = new Set(), items = [];
+  S.needs.forEach(n => { const p = productByName(n.name); if (p) used.add(p.id); items.push({sup:supplierOf(p), line:n.name + (n.status === 'low' ? ' (заканчивается)' : '')}); });
+  S.products.filter(p => isLow(p) && !used.has(p.id)).forEach(p => items.push({sup:supplierOf(p), line:lowLine(p)}));
+  return groupedOrder(items, 'Заказывать нечего');
+}
+function weekTop(){
+  const m = new Map();
+  S.week.filter(r => r.kind === 'writeoff').forEach(r => { const k = nkey(r.name); const e = m.get(k) || {n:r.name.trim(), q:0}; e.q += (r.qty == null ? 1 : +r.qty); m.set(k, e); });
+  return [...m.values()].sort((a,b) => b.q - a.q);
+}
+function weekStrip(){
+  const days = []; for (let i = 6; i >= 0; i--) days.push(iso(addDays(startOfToday(), -i)));
+  return '<div class="strip">' + days.map(d => {
+    const sub = S.dayReports.some(x => x.day === d), has = S.week.some(r => r.day === d);
+    const wd = new Date(d + 'T00:00:00').toLocaleDateString('ru-RU', {weekday:'short'});
+    return `<button class="sd ${sub ? 'ok' : has ? 'part' : ''} ${d === iso(startOfToday()) ? 'cur' : ''}" data-a="goDay" data-d="${d}"><i>${sub ? ic('check') : ''}</i><span>${wd}</span></button>`;
+  }).join('') + '</div>';
+}
+function homeHtml(){
+  const today = iso(startOfToday());
+  const needP = new Set(S.needs.map(n => (productByName(n.name) || {}).id));
+  const lowP = S.products.filter(p => isLow(p) && !needP.has(p.id)), exp = S.products.filter(expInfo);
+  const total = S.needs.length + lowP.length;
+  const tRows = S.week.filter(r => r.day === today);
+  const tw = tRows.filter(r => r.kind === 'writeoff').length, tl = tRows.filter(r => r.kind === 'lunch').length;
+  const who = [...new Set(tRows.map(r => r.user_name).filter(Boolean))];
+  const dr = S.dayReports.find(x => x.day === today);
+  const shiftsToday = S.shifts.filter(x => x.day === today);
+  const pend = S.people.filter(p => p.role === 'pending').length;
+  const top = weekTop();
+  const status = dr ? `<span class="badge ok">сдан в ${timeOf(dr.submitted_at)}, ${esc(dr.submitted_by || '')}</span>`
+    : tRows.length ? '<span class="badge warn">ведётся, ещё не сдан</span>' : '<span class="badge bad">пока пусто</span>';
+  const needRows = S.needs.map(n => `<div class="need"><button class="main" data-a="needItem" data-id="${n.id}"><b>${esc(n.name)}</b>
+    <span>${esc(n.created_by || '')}, ${dmDate(n.created_at)}${n.note ? ', ' + esc(n.note) : ''}</span></button>
+    <span class="pill ${n.status==='out'?'bad':'warn'}">${n.status==='out' ? 'закончилось' : 'заканчивается'}</span>
+    <button class="done-btn" data-a="needDone" data-id="${n.id}" aria-label="Привезли">${ic('check')}</button></div>`).join('');
+  const openN = S.openNotes.filter(n => !n.resolved_at), doneN = S.openNotes.filter(n => n.resolved_at);
+  const ownSum = openN.filter(n => n.kind === 'purchase' && n.paid_from === 'own').reduce((a, n) => a + +n.amount, 0);
+  const lowRows = lowP.map(p => `<button class="need" style="width:100%;border:0;background:none;color:inherit;text-align:left" data-a="open" data-id="${p.id}"><div class="main"><b>${esc(p.name)}</b><span>на складе, минимум ${fmt(p.min_qty)}${p.supplier ? ', ' + esc(p.supplier) : ''}</span></div><b style="font-size:22px">${fmt(p.qty)} <small class="mut" style="font-size:13px">${esc(p.unit)}</small></b></button>`).join('');
+  return header('Сводка', cap(dayLabel(today))) +
+    (pend ? `<button class="menu" data-a="tab" data-v="people" style="background:var(--warnbg);border-color:transparent"><span>Ждут подтверждения: ${pend}</span>${ic('right')}</button>` : '') +
+    `<div class="card"><div class="rowb"><b style="font-size:17px">Отчёт за сегодня</b>${status}</div>
+      <div class="mut" style="margin-top:8px;font-size:14px">${tRows.length ? `Списаний: ${tw}, обедов: ${tl}. Вносили: ${who.map(esc).join(', ')}` : 'Сегодня в отчёт ещё ничего не внесли'}</div>
+      ${weekStrip()}</div>
+     <div class="h2row"><h2>Заказать${total ? ' (' + total + ')' : ''}</h2></div>
+     ${total ? '<div class="list">' + needRows + lowRows + '</div><button class="btn" data-a="orderAll" style="margin-top:12px">' + ic('copy') + 'Список заказа по поставщикам</button>' : '<div class="list"><div class="empty-row">Заказывать нечего</div></div>'}
+     <div class="h2row"><h2>Заметки смены${openN.length ? ' (' + openN.length + ')' : ''}</h2>${ownSum ? `<span class="badge warn">вернуть ${fmt(ownSum)} ₽</span>` : ''}</div>
+     <div class="list">${openN.concat(doneN).map(n => noteRow(n, true)).join('') || '<div class="empty-row">Трат и поломок не записано</div>'}</div>
+     <h2>Сегодня на смене</h2>
+     <div class="list">${shiftsToday.length ? shiftsToday.map(x => `<div class="li"><b>${esc(shiftName(x))}</b><span style="font-weight:700">${hm(x.start_time)} - ${hm(x.end_time)}</span></div>`).join('') : '<div class="empty-row">Смен на сегодня нет</div>'}</div>
+     ${exp.length ? '<h2>Сроки годности</h2><div class="list">' + exp.map(p => { const e = expInfo(p); return `<button class="li" style="width:100%;border:0;background:none;color:inherit" data-a="open" data-id="${p.id}"><b>${esc(p.name)}</b><span class="pill ${e.cls}">${e.t}</span></button>`; }).join('') + '</div>' : ''}
+     <h2>Списания за 7 дней</h2>
+     <div class="list">${top.length ? top.slice(0,6).map(t => `<div class="li"><span class="ln">${esc(t.n)}</span><b style="font-size:20px">${fmt(t.q)}</b></div>`).join('') : '<div class="empty-row">За неделю списаний нет</div>'}</div>
+     <div class="h2row"><h2>Последние действия</h2><button class="fchip" data-a="tab" data-v="log">Весь журнал</button></div>
+     ${S.logs.slice(0,6).map(evHtml).join('') || '<div class="mut">Пока пусто</div>'}`;
+}
+
+/* ================= СКЛАД ================= */
+const isLow = p => +p.min_qty > 0 && +p.qty <= +p.min_qty;
+function expInfo(p){
+  if (!p.expires_on) return null;
+  const d = Math.round((new Date(p.expires_on + 'T00:00:00') - startOfToday()) / 864e5);
+  if (d < 0) return {cls:'bad', t:'просрочено'};
+  if (d <= 3) return {cls:'warn', t: d === 0 ? 'срок сегодня' : 'срок через ' + d + ' ' + plural(d, ['день','дня','дней'])};
+  return null;
+}
+function stockItems(){
+  const q = S.q.trim().toLowerCase();
+  let a = S.products.filter(p => !q || p.name.toLowerCase().includes(q) || String(p.supplier || '').toLowerCase().includes(q));
+  if (S.stockFilter === 'low') a = a.filter(isLow);
+  if (S.stockFilter === 'exp') a = a.filter(p => expInfo(p));
+  return a;
+}
+function stockListHtml(){
+  const a = stockItems();
+  if (!S.products.length) return `<div class="empty">Продуктов пока нет.${isAdmin() ? ' Нажмите «Продукт», чтобы добавить первый.' : ' Админ ещё не добавил список.'}</div>`;
+  if (!a.length) return '<div class="empty">Ничего не найдено</div>';
+  return a.map(p => {
+    const e = expInfo(p), low = isLow(p), pct = +p.min_qty > 0 ? Math.min(100, Math.round(+p.qty / (+p.min_qty * 2) * 100)) : null;
+    return `<button class="prod" data-a="open" data-id="${p.id}"><div style="flex:1;min-width:0"><div class="pn">${esc(p.name)}</div>
+      <div class="pm">${low ? '<span class="badge bad">мало</span>' : ''}${e ? `<span class="badge ${e.cls}">${e.t}</span>` : ''}${p.expires_on && !e ? `<span class="badge">до ${dmy(p.expires_on)}</span>` : ''}${p.supplier ? `<span class="badge">${esc(p.supplier)}</span>` : ''}</div>
+      ${pct != null ? `<i class="bar ${low ? 'low' : ''}"><u style="width:${Math.max(pct, 4)}%"></u></i>` : ''}</div>
+      <div class="pq"><b>${fmt(p.qty)}</b><small>${esc(p.unit)}${+p.min_qty > 0 ? ', мин. ' + fmt(p.min_qty) : ''}</small></div></button>`;
+  }).join('');
+}
+function stockHtml(){
+  const low = S.products.filter(isLow).length, exp = S.products.filter(expInfo).length;
+  return header('Склад', S.products.length ? S.products.length + ' ' + plural(S.products.length, ['позиция','позиции','позиций']) : '') +
+    `<div class="search">${ic('search')}<input data-in="q" type="search" placeholder="Найти продукт или поставщика" value="${esc(S.q)}" autocomplete="off"></div>
+    <div class="filters">
+      <button class="fchip ${S.stockFilter==='all'?'on':''}" data-a="sf" data-v="all">Все</button>
+      <button class="fchip ${S.stockFilter==='low'?'on':''}" data-a="sf" data-v="low">Мало ${low || ''}</button>
+      <button class="fchip ${S.stockFilter==='exp'?'on':''}" data-a="sf" data-v="exp">Срок ${exp || ''}</button>
+      ${low ? `<button class="fchip" data-a="order">Список заказа</button>` : ''}
+    </div><div id="list">${stockListHtml()}</div>`;
+}
+function drawStockList(){ const l = $('#list'); if (l) l.innerHTML = stockListHtml(); }
+
+/* ================= ЖУРНАЛ ================= */
+function logLine(l){
+  let t = `<b>${esc(l.user_name)}</b> ${ACT[l.action] || esc(l.action)}`;
+  if (l.product_name) t += ` <b>${esc(l.product_name)}</b>`;
+  if (['restock','writeoff','set'].includes(l.action) && l.old_qty != null && l.new_qty != null) t += `: было ${fmt(l.old_qty)}, стало ${fmt(l.new_qty)}`;
+  else if (l.action === 'add_product' && l.new_qty != null) t += `, остаток ${fmt(l.new_qty)}`;
+  else if (l.action === 'delete_product' && l.old_qty != null) t += `, было ${fmt(l.old_qty)}`;
+  if (l.note) t += `<div class="note">${esc(l.note)}</div>`;
+  return t;
+}
+const evHtml = l => `<div class="ev"><i class="${DOT[l.action] != null ? DOT[l.action] : ''}"></i><div class="b">${logLine(l)}</div><div class="tm">${timeOf(l.at)}</div></div>`;
+function logsFiltered(){
+  let a = S.logs;
+  if (S.logUser !== 'all') a = a.filter(l => l.user_id === S.logUser);
+  const g = LOG_GROUPS[S.logType][1];
+  if (g) a = a.filter(l => g.includes(l.action));
+  return a;
+}
+function logHtml(){
+  const a = logsFiltered();
+  const users = [...new Map(S.logs.filter(l => l.user_id).map(l => [l.user_id, l.user_name])).entries()];
+  let body = '', cur = '';
+  a.forEach(l => { const d = iso(new Date(l.at)); if (d !== cur){ cur = d; body += `<div class="dayh ${d === iso(startOfToday()) ? 'today' : ''}">${dayShort(d)}</div>`; } body += evHtml(l); });
+  return header(isAdmin() ? 'Журнал' : 'Мои действия', 'Кто и что менял') +
+    `<div class="filters">${Object.entries(LOG_GROUPS).map(([k,v]) => `<button class="fchip ${S.logType===k?'on':''}" data-a="lt" data-v="${k}">${v[0]}</button>`).join('')}</div>
+    ${isAdmin() ? `<select data-in="logUser"><option value="all">Все сотрудники</option>${users.map(([id,n]) => `<option value="${id}" ${S.logUser===id?'selected':''}>${esc(n)}</option>`).join('')}</select>` : ''}
+    ${isAdmin() && a.length ? `<button class="btn alt sm" style="margin-bottom:6px" data-a="csv">${ic('down')}Скачать таблицей</button>` : ''}
+    ${body || '<div class="empty">Записей пока нет</div>'}`;
+}
+
+/* ================= СМЕНЫ ================= */
+const shiftName = s => s.profiles ? s.profiles.name : '';
+const partnersOf = s => [...new Set(S.shifts.filter(x => x.day === s.day && x.user_id !== s.user_id).map(shiftName).filter(Boolean))];
+function shiftsHtml(){
+  const today = iso(startOfToday());
+  const list = S.shifts.filter(s => S.showPast || s.day >= today);
+  const days = {}; list.forEach(s => (days[s.day] = days[s.day] || []).push(s));
+  const keys = Object.keys(days).sort();
+  const tag = isAdmin() ? 'button' : 'div';
+  return header('График смен', isAdmin() ? 'Нажмите на смену, чтобы изменить' : 'Общий график, ваши смены выделены') +
+    (keys.length ? keys.map(k => { const names = [...new Set(days[k].map(shiftName).filter(Boolean))];
+      return `<div class="dayh ${k === today ? 'today' : ''}">${k === today ? 'Сегодня, ' + dayLabel(k) : cap(dayLabel(k))}${names.length > 1 ? `<span class="pair">${names.map(esc).join(' + ')}</span>` : ''}</div>` +
+      days[k].map(s => `<${tag} class="shiftc ${s.user_id === S.me.id ? 'me' : ''}" ${isAdmin() ? `data-a="editShift" data-id="${s.id}"` : ''}>
+        <div><b>${esc(shiftName(s))}</b>${s.user_id === S.me.id ? ' <span class="badge">вы</span>' : ''}${s.note ? `<div class="note">${esc(s.note)}</div>` : ''}</div>
+        <div class="t">${hm(s.start_time)} - ${hm(s.end_time)}</div></${tag}>`).join(''); }).join('')
+      : '<div class="empty">Смен пока нет</div>') +
+    `<button class="fchip" style="margin-top:14px" data-a="past">${S.showPast ? 'Скрыть прошедшие' : 'Показать прошедшие за 7 дней'}</button>`;
+}
+
+/* ================= ЛЮДИ И КАБИНЕТ ================= */
+const initial = n => String(n || '?').trim().charAt(0).toUpperCase();
+function personCard(p){
+  const b = {pending:'warn',worker:'',admin:'ok',owner:'ok',blocked:'bad'}[p.role];
+  return `<button class="pers" data-a="person" data-id="${p.id}"><div class="avatar">${esc(initial(p.name))}</div><div class="pn">${esc(p.name)}<div class="note">с ${new Date(p.created_at).toLocaleDateString('ru-RU')}</div></div><span class="badge ${b}">${ROLE_RU[p.role]}</span></button>`;
+}
+function peopleHtml(){
+  const pend = S.people.filter(p => p.role === 'pending'), rest = S.people.filter(p => p.role !== 'pending');
+  return header('Люди', 'Кто имеет доступ', `<button class="ibtn" data-a="tab" data-v="me" aria-label="Назад">${ic('left')}</button>`) +
+    (pend.length ? '<h2 style="margin-top:6px">Ждут подтверждения</h2>' + pend.map(personCard).join('') : '') +
+    '<h2>Сотрудники</h2>' + (rest.map(personCard).join('') || '<div class="empty">Пока никого</div>');
+}
+function meHtml(){
+  const today = iso(startOfToday());
+  const mine = S.shifts.filter(s => s.user_id === S.me.id && s.day >= today).slice(0,5);
+  const acts = S.logs.filter(l => l.user_id === S.me.id).slice(0,8);
+  const pend = isAdmin() ? S.people.filter(p => p.role === 'pending').length : 0;
+  return header('Кабинет', '', '') +
+    `<div class="card rowb" style="gap:14px;justify-content:flex-start"><div class="avatar" style="width:54px;height:54px;font-size:22px">${esc(initial(S.me.name))}</div>
+      <div><b style="font-size:19px">${esc(S.me.name)}</b><div class="note" style="margin-top:4px">${ROLE_RU[S.me.role]}, логин ${esc(loginOf(S.session.user.email))}</div></div></div>
+    ${isAdmin() ? `<button class="menu" data-a="tab" data-v="people"><span style="display:flex;align-items:center;gap:10px">${ic('people')}Люди и доступ</span>${pend ? `<span class="badge warn">ждут: ${pend}</span>` : ic('right')}</button>` : ''}
+    <h2>Мои ближайшие смены</h2>
+    ${mine.length ? mine.map(s => { const pr = partnersOf(s); return `<div class="shiftc"><div><b>${cap(dayLabel(s.day))}</b>${pr.length ? `<div class="note">вместе с ${pr.map(esc).join(', ')}</div>` : ''}</div><div class="t">${hm(s.start_time)} - ${hm(s.end_time)}</div></div>`; }).join('') : '<div class="mut">Смен пока нет</div>'}
+    <h2>Мои последние действия</h2>
+    ${acts.length ? acts.map(evHtml).join('') : '<div class="mut">Пока пусто</div>'}
+    <h2>Аккаунт</h2>
+    <div class="stack"><button class="btn alt" data-a="pass">Сменить пароль</button><button class="btn danger" data-a="logout">Выйти</button></div>`;
+}
+
+/* ================= ШТОРКИ ================= */
+function drawSheet(){
+  const el = $('#sheet'), s = S.sheet, had = !!el.firstChild;
+  document.documentElement.style.overflow = s ? 'hidden' : '';
+  if (!s){ el.innerHTML = ''; return; }
+  if (!had) $('#toast').innerHTML = '';
+  const map = {note:noteFormSheet, nnote:noteSheet, product:productSheet, shift:shiftSheet, person:personSheet, order:orderSheet, text:textSheet, ritem:itemSheet, num:numSheet, need:needSheet, nitem:needItemSheet, pass:passSheet};
+  const body = (map[s.t] || (() => ''))(s);
+  el.innerHTML = `<div class="sheet-bg ${had ? 'still' : ''}" data-a="closeBg"><div class="sheet"><div class="grab"></div>${body}</div></div>`;
+  if (!had){ const f = el.querySelector('[data-focus]'); if (f) setTimeout(() => { f.focus(); try{ f.select(); }catch(e){} }, 340); }
+}
+const closeBtn = '<button class="btn ghost" data-a="close" style="margin-top:12px">Закрыть</button>';
+
+function productSheet(s){
+  const p = S.products.find(x => x.id === s.id);
+  if (s.mode === 'edit') return productForm(p);
+  if (!p) return closeBtn;
+  const modes = {restock:['Приход','Сколько пришло'], writeoff:['Списание','Сколько списать'], set:['Пересчёт','Сколько реально осталось']};
+  let form = '';
+  if (s.mode){
+    form = `<form data-f="stock"><input type="hidden" name="mode" value="${s.mode}">
+      <label>${modes[s.mode][1]}, ${esc(p.unit)}</label>
+      <input name="amount" class="big" inputmode="decimal" autocomplete="off" required placeholder="0" data-focus value="${s.mode==='set' ? raw(p.qty) : ''}">
+      ${s.mode === 'writeoff' ? `<label>Причина</label><select name="reason">${REASONS.map(r => `<option>${r}</option>`).join('')}</select>
+        <label>Комментарий, если нужно</label><input name="note" autocomplete="off">` : ''}
+      ${s.mode === 'restock' ? `<label>Откуда</label><div class="opts">${Object.entries(SOURCES).map(([k,v], i) => `<label><input type="radio" name="source" value="${k}" ${i ? '' : 'checked'}>${v}</label>`).join('')}</div>
+        <label>Годен до, если нужно</label><input name="exp" type="date">
+        <label>Комментарий, если нужно</label><input name="note" autocomplete="off">` : ''}
+      <button class="btn" type="submit">Сохранить</button></form>`;
+  }
+  return `<h3>${esc(p.name)}</h3><div class="sub">Сейчас ${fmt(p.qty)} ${esc(p.unit)}${p.expires_on ? ', годен до ' + dmy(p.expires_on) : ''}${p.supplier ? ', поставщик ' + esc(p.supplier) : ''}</div>
+    <div class="seg">${Object.entries(modes).map(([k,v]) => `<button class="btn ${s.mode===k?'':'alt'}" data-a="mode" data-v="${k}" style="padding:0 8px;font-size:15px">${v[0]}</button>`).join('')}</div>
+    ${form}${isAdmin() ? '<button class="btn alt" data-a="editProduct" style="margin-top:10px">Изменить продукт</button>' : ''}${closeBtn}`;
+}
+function productForm(p){
+  const n = !p;
+  return `<h3>${n ? 'Новый продукт' : 'Изменить продукт'}</h3><form data-f="product" style="margin-top:14px">
+    <input type="hidden" name="id" value="${n ? '' : p.id}">
+    <label>Название</label><input name="name" required value="${n ? '' : esc(p.name)}" placeholder="Молоко 3,2%" ${n ? 'data-focus' : ''}>
+    <div class="grid2"><div><label>Единица</label><select name="unit">${UNITS.map(u => `<option ${(!n && p.unit===u)?'selected':''}>${u}</option>`).join('')}</select></div>
+    <div><label>Минимум</label><input name="min" inputmode="decimal" value="${n ? '' : raw(p.min_qty)}" placeholder="0"></div></div>
+    <label>Поставщик</label><input name="supplier" list="suppliers" autocomplete="off" value="${n ? '' : esc(p.supplier || '')}" placeholder="Например, Молочка">
+    <datalist id="suppliers">${suppliers().map(x => `<option value="${esc(x)}">`).join('')}</datalist>
+    ${n ? '<label>Сколько сейчас</label><input name="qty" inputmode="decimal" placeholder="0">' : ''}
+    <label>Годен до, если нужно</label><input name="exp" type="date" value="${n ? '' : (p.expires_on || '')}">
+    <button class="btn" type="submit">Сохранить</button></form>
+    ${n ? '' : '<button class="btn danger" data-a="delProduct" style="margin-top:10px">Удалить продукт</button>'}${closeBtn}`;
+}
+function orderSheet(){ return textSheet({title:'Список заказа', sub:'Продукты, которых осталось не больше минимума, по поставщикам', text:orderText()}); }
+function orderText(){ return groupedOrder(S.products.filter(isLow).map(p => ({sup:supplierOf(p), line:lowLine(p)})), 'Всё в достатке'); }
+const NOTE_QUICK = ['Не горит лампа','Пропали ценники','Сломалась кофемашина','Течёт кран','Не работает терминал'];
+function noteFormSheet(s){
+  const pur = s.k === 'purchase';
+  return `<h3>${pur ? 'Покупка по чеку' : 'Поломка или заметка'}</h3><div class="sub">${dayShort(S.reportDay)}, увидят админы на «Сводке»</div>
+    <form data-f="note" style="margin-top:14px"><input type="hidden" name="k" value="${s.k}">
+    ${pur ? `<label>Что купили</label><input name="text" required autocomplete="off" placeholder="Сок по чеку" data-focus>
+      <label>Сумма, ₽</label><input name="amount" class="big" inputmode="decimal" autocomplete="off" placeholder="0">
+      <label>Чьи деньги</label><div class="opts">${Object.entries(PAID).map(([k,v], i) => `<label><input type="radio" name="paid" value="${k}" ${i ? '' : 'checked'}>${cap(v)}</label>`).join('')}</div>`
+    : `<label>Что случилось</label><textarea name="text" rows="3" required placeholder="Не горит лампа над стойкой" data-focus></textarea>
+      <div class="chips" style="margin:-2px 0 14px">${NOTE_QUICK.map(x => `<button type="button" class="chip" data-a="noteFill" data-v="${esc(x)}">${esc(x)}</button>`).join('')}</div>`}
+    <button class="btn" type="submit">Записать</button></form>${closeBtn}`;
+}
+function noteSheet(s){
+  const n = noteById(s.id); if (!n) return closeBtn;
+  const pur = n.kind === 'purchase', mine = n.user_id === S.me.id;
+  const head = pur ? fmt(n.amount) + ' ₽, ' + PAID[n.paid_from || 'cash'] : 'Поломка или заметка';
+  return `<h3>${esc(n.text)}</h3><div class="sub">${head}. ${esc(n.user_name || '')}, ${dmy(n.day)} ${timeOf(n.created_at)}${n.resolved_at ? '. ' + (pur ? 'Учтено' : 'Решено') + ': ' + esc(n.resolved_by || '') + ', ' + dmDate(n.resolved_at) : ''}</div>
+    <div class="stack" style="margin-top:16px">
+      ${isAdmin() && !n.resolved_at ? `<button class="btn" data-a="noteDone" data-id="${n.id}">${ic('check')}${pur ? 'Учтено, деньги вернули' : 'Решено'}</button>` : ''}
+      ${isAdmin() || (mine && !n.resolved_at) ? `<button class="btn danger" data-a="noteDel" data-id="${n.id}">Удалить заметку</button>` : ''}</div>${closeBtn}`;
+}
+function textSheet(s){
+  return `<h3>${esc(s.title)}</h3><div class="sub" style="margin-bottom:12px">${esc(s.sub || '')}</div>
+    <textarea readonly id="ordertext" style="min-height:190px;font-size:15.5px">${esc(s.text)}</textarea>
+    <div class="grid2"><button class="btn" data-a="copy">${ic('copy')}Скопировать</button>
+    ${navigator.share ? `<button class="btn alt" data-a="share">${ic('send')}Отправить</button>` : ''}</div>${closeBtn}`;
+}
+function numSheet(s){
+  const q = qtyOf(s.k, s.n);
+  return `<h3>${esc(s.n)}</h3><div class="sub">${KIND[s.k]}, ${dayShort(S.reportDay).toLowerCase()}</div>
+    <form data-f="num" style="margin-top:16px"><input type="hidden" name="k" value="${s.k}"><input type="hidden" name="n" value="${esc(s.n)}">
+      <label>Сколько ${s.k === 'lunch' ? 'порций' : 'штук'}</label>
+      <input class="big" name="v" inputmode="decimal" autocomplete="off" required placeholder="0" data-focus value="${q == null ? '' : raw(q)}">
+      <button class="btn" type="submit">Сохранить</button></form>
+    ${q != null ? '<button class="btn danger" data-a="numDel" style="margin-top:10px">Убрать из отчёта</button>' : ''}${closeBtn}`;
+}
+function itemSheet(s){
+  const k = s.k, lunch = k === 'lunch';
+  return `<h3>${KIND[k]}: другое</h3><div class="sub">${dayShort(S.reportDay)}, ${S.reportDay.split('-').reverse().join('.')}</div>
+    <form data-f="ritem" style="margin-top:14px"><input type="hidden" name="k" value="${k}">
+      <label>Название</label><input name="name" required autocomplete="off" placeholder="Например, сырники" data-focus>
+      <div class="grid2"><div><label>${lunch ? 'Порций' : 'Штук'}</label><input name="qty" inputmode="decimal" autocomplete="off" value="1"></div>
+      <div><label>Заметка</label><input name="note" autocomplete="off"></div></div>
+      <button class="btn" type="submit">Добавить</button></form>
+    <h2>Или вставьте списком из чата</h2>
+    <form data-f="rlist"><input type="hidden" name="k" value="${k}">
+      <textarea name="text" rows="5" placeholder="2 запеканки&#10;капучино&#10;рис 2"></textarea>
+      <button class="btn alt" type="submit">Добавить списком</button></form>
+    <div class="hint" style="margin-top:8px">Число можно писать в начале или в конце строки.</div>${closeBtn}`;
+}
+function needSheet(){
+  return `<h3>Закончилось или заканчивается</h3><div class="sub">Список общий, его видят все</div>
+    <form data-f="need" style="margin-top:14px"><label>Что</label><input name="name" required autocomplete="off" placeholder="Например, сиропы" data-focus>
+      <div class="grid2"><div><label>Статус</label><select name="status"><option value="out">Закончилось</option><option value="low">Заканчивается</option></select></div>
+      <div><label>Заметка</label><input name="note" autocomplete="off"></div></div>
+      <button class="btn" type="submit">Добавить</button></form>
+    <h2>Или вставьте списком из чата</h2>
+    <form data-f="nlist"><select name="status"><option value="out">Всё закончилось</option><option value="low">Всё заканчивается</option></select>
+      <textarea name="text" rows="5" placeholder="крышки большие&#10;горячий шоколад&#10;какао"></textarea>
+      <button class="btn alt" type="submit">Добавить списком</button></form>${closeBtn}`;
+}
+function needItemSheet(s){
+  const n = S.needs.find(x => x.id === s.id); if (!n) return closeBtn;
+  return `<h3>${esc(n.name)}</h3><div class="sub">${n.status==='out' ? 'Закончилось' : 'Заканчивается'}, отметил(а) ${esc(n.created_by || '')}, ${dmDate(n.created_at)}${n.note ? ', ' + esc(n.note) : ''}</div>
+    <div class="stack" style="margin-top:16px">
+      <button class="btn" data-a="needDone" data-id="${n.id}">${ic('check')}Привезли</button>
+      <button class="btn alt" data-a="needSet" data-id="${n.id}" data-v="${n.status==='out'?'low':'out'}">${n.status==='out' ? 'Ещё есть, но заканчивается' : 'Теперь совсем закончилось'}</button>
+      <button class="btn danger" data-a="needDel" data-id="${n.id}">Убрать, добавили по ошибке</button></div>${closeBtn}`;
+}
+function shiftSheet(s){
+  const sh = s.id ? S.shifts.find(x => x.id === s.id) : null;
+  const staff = S.people.filter(p => ['worker','admin','owner'].includes(p.role));
+  return `<h3>${sh ? 'Изменить смену' : 'Новая смена'}</h3><form data-f="shift" style="margin-top:14px">
+    <input type="hidden" name="id" value="${sh ? sh.id : ''}">
+    <label>Кто</label><select name="user" required>${staff.map(p => `<option value="${p.id}" ${sh && sh.user_id===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    <label>Дата</label><input name="day" type="date" required value="${sh ? sh.day : iso(startOfToday())}">
+    <div class="grid2"><div><label>С</label><input name="start" type="time" required value="${sh ? hm(sh.start_time) : '09:00'}"></div>
+    <div><label>До</label><input name="end" type="time" required value="${sh ? hm(sh.end_time) : '18:00'}"></div></div>
+    <label>Заметка, если нужно</label><input name="note" value="${sh ? esc(sh.note || '') : ''}">
+    <button class="btn" type="submit">Сохранить</button></form>
+    ${sh ? '<button class="btn danger" data-a="delShift" style="margin-top:10px">Удалить смену</button>' : ''}${closeBtn}`;
+}
+function personSheet(s){
+  const p = S.people.find(x => x.id === s.id); if (!p) return closeBtn;
+  const owner = S.me.role === 'owner', self = p.id === S.me.id, locked = !owner && (p.role === 'admin' || p.role === 'owner');
+  let opts = [];
+  if (!self && !locked){
+    opts = owner ? [['worker','Работник'],['admin','Админ'],['owner','Владелец'],['blocked','Заблокировать']] : [['worker','Работник'],['blocked','Заблокировать']];
+    if (p.role === 'pending') opts = opts.map(o => o[0] === 'blocked' ? ['blocked','Отклонить'] : o);
+  }
+  return `<h3>${esc(p.name)}</h3><div class="sub">Сейчас: ${ROLE_RU[p.role].toLowerCase()}</div>
+    <div class="stack" style="margin-top:16px">${opts.length ? opts.filter(o => o[0] !== p.role).map(o => `<button class="btn ${o[0]==='blocked'?'danger':(o[0]==='worker'&&p.role==='pending'?'':'alt')}" data-a="role" data-id="${p.id}" data-v="${o[0]}">${p.role==='pending'&&o[0]==='worker'?'Принять как работника':o[1]}</button>`).join('') : `<div class="mut">${self ? 'Свою роль менять нельзя.' : 'Менять админов и владельцев может только владелец.'}</div>`}</div>${closeBtn}`;
+}
+function passSheet(){
+  return `<h3>Сменить пароль</h3><form data-f="pass" style="margin-top:14px">
+    <label>Новый пароль, минимум 6 символов</label><input name="p1" type="password" required minlength="6" autocomplete="new-password" data-focus>
+    <button class="btn" type="submit">Сохранить</button></form>${closeBtn}`;
+}
+
+/* ================= ДЕЙСТВИЯ ================= */
+function closeSheet(){
+  const bg = document.querySelector('#sheet .sheet-bg'); if (!bg){ S.sheet = null; return drawSheet(); }
+  bg.classList.add('closing'); setTimeout(() => { S.sheet = null; drawSheet(); }, 190);
+}
+const A = {
+  tab(el){ S.tab = el.dataset.v; render(); quickRefresh(); },
+  refresh(){ S.booting = false; loadAll().then(() => toast('Обновлено')); },
+  sf(el){ S.stockFilter = el.dataset.v; render(); },
+  lt(el){ S.logType = el.dataset.v; render(); },
+  past(){ S.showPast = !S.showPast; render(); },
+  authMode(){ S.authMode = S.authMode === 'in' ? 'up' : 'in'; S.authErr = ''; render(); },
+  toastAct(){ const f = toast.act; $('#toast').innerHTML = ''; if (f) f(); },
+  dayPrev(){ setDay(iso(addDays(new Date(S.reportDay + 'T00:00:00'), -1))); },
+  dayNext(){ const t = iso(startOfToday()), n = iso(addDays(new Date(S.reportDay + 'T00:00:00'), 1)); if (n <= t) setDay(n); },
+  goDay(el){ S.tab = 'report'; S.reportDay = el.dataset.d; S.lastTab = null; Promise.all([loadReport(), loadNotes()]).then(render, render); },
+  inc(el){ change(el.dataset.k, el.dataset.n, 1); },
+  dec(el){ change(el.dataset.k, el.dataset.n, -1); },
+  num(el){ S.sheet = {t:'num', k:el.dataset.k, n:el.dataset.n}; drawSheet(); },
+  numDel(){
+    const r = findRow(S.sheet.k, S.sheet.n); closeSheet();
+    if (!r) return;
+    S.report = S.report.filter(x => x !== r); render();
+    if (!String(r.id).startsWith('tmp')) send(() => rpc('delete_report_item', {p_id:r.id}));
+  },
+  addItem(el){ S.sheet = {t:'ritem', k:el.dataset.k}; drawSheet(); },
+  addNeed(){ S.sheet = {t:'need'}; drawSheet(); },
+  needItem(el){ S.sheet = {t:'nitem', id:el.dataset.id}; drawSheet(); },
+  needQuick(el){
+    const n = el.dataset.n; buzz();
+    S.needs.push({id:'tmp' + Date.now(), name:n, status:'out', created_by:S.me.name, created_at:new Date().toISOString()}); render();
+    send(() => rpc('add_needs', {p_items:[{name:n, status:'out'}]}));
+    toast('Отмечено: ' + n);
+  },
+  needDone(el){
+    const id = el.dataset.id; if (String(id).startsWith('tmp')) return toast('Секунду, сохраняется');
+    buzz(); S.needs = S.needs.filter(x => x.id !== id); if (S.sheet) { S.sheet = null; drawSheet(); } render();
+    send(() => rpc('resolve_need', {p_id:id})); toast('Отмечено: привезли');
+  },
+  needSet(el){ const id = el.dataset.id, v = el.dataset.v; const n = S.needs.find(x => x.id === id); if (n) n.status = v; closeSheet(); render(); send(() => rpc('set_need', {p_id:id, p_status:v})); },
+  needDel(el){ const id = el.dataset.id; if (!confirm('Убрать из списка?')) return; S.needs = S.needs.filter(x => x.id !== id); closeSheet(); render(); send(() => rpc('delete_need', {p_id:id})); },
+  async submit(){
+    try{ await rpc('submit_report', {p_day:S.reportDay}); await loadDayReports(); render(); buzz(); toast('Отчёт сдан'); }catch(e){ toast(ru(e.message)); }
+  },
+  async reopen(){
+    try{ await rpc('reopen_report', {p_day:S.reportDay}); await loadDayReports(); render(); toast('Отчёт открыт, можно вносить'); }catch(e){ toast(ru(e.message)); }
+  },
+  addNote(el){ S.sheet = {t:'note', k:el.dataset.v}; drawSheet(); },
+  noteItem(el){ S.sheet = {t:'nnote', id:el.dataset.id}; drawSheet(); },
+  noteFill(el){ const t = document.querySelector('#sheet textarea[name=text]'); if (t){ t.value = el.dataset.v; t.focus(); } },
+  async noteDone(el){
+    buzz();
+    try{ await rpc('resolve_shift_note', {p_id:el.dataset.id}); if (S.sheet){ S.sheet = null; drawSheet(); } await reloadNotes(); render(); toast('Заметка закрыта'); }catch(e){ toast(ru(e.message)); }
+  },
+  async noteDel(el){
+    if (!confirm('Удалить заметку? Это попадёт в журнал.')) return;
+    try{ await rpc('delete_shift_note', {p_id:el.dataset.id}); S.sheet = null; await reloadNotes(); render(); toast('Удалено'); }catch(e){ toast(ru(e.message)); }
+  },
+  reportText(){ S.sheet = {t:'text', title:'Текст отчёта', sub:'Можно скопировать и отправить в чат', text:reportText()}; drawSheet(); },
+  orderAll(){ S.sheet = {t:'text', title:'Список заказа', sub:'Что отметили работники и что ниже минимума на складе', text:orderAllText()}; drawSheet(); },
+  order(){ S.sheet = {t:'order'}; drawSheet(); },
+  open(el){ S.sheet = {t:'product', id:el.dataset.id, mode:null}; drawSheet(); },
+  mode(el){ S.sheet.mode = el.dataset.v; drawSheet(); },
+  newProduct(){ S.sheet = {t:'product', id:null, mode:'edit'}; drawSheet(); },
+  editProduct(){ S.sheet.mode = 'edit'; drawSheet(); },
+  newShift(){ S.sheet = {t:'shift', id:null}; drawSheet(); },
+  editShift(el){ S.sheet = {t:'shift', id:el.dataset.id}; drawSheet(); },
+  person(el){ S.sheet = {t:'person', id:el.dataset.id}; drawSheet(); },
+  pass(){ S.sheet = {t:'pass'}; drawSheet(); },
+  close(){ closeSheet(); },
+  closeBg(el, e){ if (e.target === el) closeSheet(); },
+  async logout(){ await sb.auth.signOut(); S.session = null; S.me = null; S.sheet = null; S.tab = 'report'; S.tabInit = false; S.lastTab = null; render(); },
+  async delProduct(){
+    const p = S.products.find(x => x.id === S.sheet.id);
+    if (!p || !confirm('Удалить «' + p.name + '»? Это попадёт в журнал.')) return;
+    try{ await rpc('delete_product', {p_id:p.id}); S.sheet = null; await loadAll(); toast('Удалено'); }catch(e){ toast(ru(e.message)); }
+  },
+  async delShift(){
+    if (!confirm('Удалить смену?')) return;
+    try{ const {error} = await sb.from('shifts').delete().eq('id', S.sheet.id); if (error) throw error; S.sheet = null; await loadAll(); toast('Смена удалена'); }catch(e){ toast(ru(e.message)); }
+  },
+  async role(el){
+    try{ await rpc('set_role', {p_user:el.dataset.id, p_role:el.dataset.v}); S.sheet = null; await loadAll(); toast('Готово'); }catch(e){ toast(ru(e.message)); }
+  },
+  copy(){
+    const t = $('#ordertext'); t.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(t.value) : Promise.resolve(document.execCommand('copy')))
+      .then(() => toast('Скопировано')).catch(() => toast('Выделите текст и скопируйте вручную'));
+  },
+  share(){ navigator.share({text: $('#ordertext').value}).catch(() => {}); },
+  csv(){
+    const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const rows = [['Время','Кто','Действие','Продукт','Было','Стало','Комментарий']].concat(
+      logsFiltered().map(l => [when(l.at), l.user_name, (ACT[l.action] || l.action), l.product_name, l.old_qty, l.new_qty, l.note]));
+    const blob = new Blob(['﻿' + rows.map(r => r.map(q).join(';')).join('\r\n')], {type:'text/csv;charset=utf-8'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'zhurnal-' + iso(new Date()) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const f = A[el.dataset.a]; if (f) f(el, e);
+});
+document.addEventListener('input', e => {
+  const k = e.target.dataset && e.target.dataset.in; if (!k) return;
+  S[k] = e.target.value;
+  if (k === 'q') drawStockList(); else render();
+});
+
+const F = {
+  async auth(f){
+    const fd = new FormData(f), login = String(fd.get('login')).trim().toLowerCase(), pass = String(fd.get('pass'));
+    S.authErr = '';
+    try{
+      if (S.authMode === 'up'){
+        const name = String(fd.get('name')).trim();
+        const {data,error} = await sb.auth.signUp({email:emailOf(login), password:pass, options:{data:{name}}});
+        if (error) throw error;
+        if (!data.session){ const r = await sb.auth.signInWithPassword({email:emailOf(login), password:pass}); if (r.error) throw r.error; }
+      }else{
+        const {error} = await sb.auth.signInWithPassword({email:emailOf(login), password:pass}); if (error) throw error;
+      }
+      S.booting = true; render(); await loadAll();
+    }catch(e){ S.authErr = ru(e.message); S.booting = false; render(); }
+  },
+  num(f){
+    const fd = new FormData(f), v = num(fd.get('v')); if (v == null || v < 0) return toast('Введите число');
+    const k = fd.get('k'), n = fd.get('n'); closeSheet();
+    if (k === 'writeoff' && v === 0){ const r = findRow(k, n); if (r){ S.report = S.report.filter(x => x !== r); render(); if (!String(r.id).startsWith('tmp')) send(() => rpc('delete_report_item', {p_id:r.id})); } return; }
+    setExact(k, n, v);
+  },
+  async ritem(f){
+    const fd = new FormData(f), k = fd.get('k'), name = canonName(String(fd.get('name')), S.names[k]); if (!name) return;
+    try{
+      await rpc('add_report_items', {p_day:S.reportDay, p_kind:k, p_items:[{name, qty:num(fd.get('qty')), note:String(fd.get('note') || '').trim()}]});
+      S.sheet = null; await loadAll(); toast('Добавлено: ' + name);
+    }catch(e){ toast(ru(e.message)); }
+  },
+  async rlist(f){
+    const fd = new FormData(f), k = fd.get('k'), items = parseLines(fd.get('text'), true).map(x => ({name:canonName(x.name, S.names[k]), qty: x.qty != null ? x.qty : (k === 'writeoff' ? 1 : null)}));
+    if (!items.length) return toast('Вставьте хотя бы одну строку');
+    try{ await rpc('add_report_items', {p_day:S.reportDay, p_kind:k, p_items:items}); S.sheet = null; await loadAll(); toast('Добавлено строк: ' + items.length); }catch(e){ toast(ru(e.message)); }
+  },
+  async need(f){
+    const fd = new FormData(f), name = canonName(String(fd.get('name')), S.names.need); if (!name) return;
+    try{ await rpc('add_needs', {p_items:[{name, status:fd.get('status'), note:String(fd.get('note') || '').trim()}]}); S.sheet = null; await loadAll(); toast('Добавлено в список'); }catch(e){ toast(ru(e.message)); }
+  },
+  async nlist(f){
+    const fd = new FormData(f), st = fd.get('status'), items = parseLines(fd.get('text'), false).map(x => ({name:canonName(x.name, S.names.need), status:st}));
+    if (!items.length) return toast('Вставьте хотя бы одну строку');
+    try{ await rpc('add_needs', {p_items:items}); S.sheet = null; await loadAll(); toast('Добавлено строк: ' + items.length); }catch(e){ toast(ru(e.message)); }
+  },
+  async stock(f){
+    const fd = new FormData(f), mode = fd.get('mode'), amount = num(fd.get('amount'));
+    if (amount == null) return toast('Введите число');
+    let reason = null;
+    if (mode === 'writeoff'){ reason = fd.get('reason'); const n = String(fd.get('note') || '').trim(); if (n) reason += ': ' + n; }
+    if (mode === 'restock') reason = String(fd.get('note') || '').trim() || null;
+    try{
+      await rpc('change_stock', {p_product:S.sheet.id, p_kind:mode, p_amount:amount, p_reason:reason, p_expires:(mode==='restock' && fd.get('exp')) || null,
+        p_source:mode === 'restock' ? (fd.get('source') || 'supplier') : null});
+      S.sheet = null; await loadAll(); toast('Сохранено');
+    }catch(e){ toast(ru(e.message)); }
+  },
+  async product(f){
+    const fd = new FormData(f);
+    try{
+      await rpc('save_product', {p_id:fd.get('id') || null, p_name:String(fd.get('name')).trim(), p_unit:fd.get('unit'),
+        p_min:num(fd.get('min')) || 0, p_qty:num(fd.get('qty')) || 0, p_expires:fd.get('exp') || null, p_supplier:String(fd.get('supplier') || '').trim() || null});
+      S.sheet = null; await loadAll(); toast('Сохранено');
+    }catch(e){ toast(ru(e.message)); }
+  },
+  async note(f){
+    const fd = new FormData(f), k = fd.get('k'), text = String(fd.get('text') || '').trim();
+    if (!text) return toast('Напишите, что случилось');
+    let amount = null;
+    if (k === 'purchase'){
+      amount = num(fd.get('amount'));
+      if (amount == null){ const m = text.match(/(\d+(?:[.,]\d+)?)\s*(?:₽|руб[а-яё]*|р(?![а-яё]))/i); if (m) amount = num(m[1]); }
+      if (!amount || amount <= 0) return toast('Укажите сумму по чеку');
+    }
+    try{
+      await rpc('add_shift_note', {p_day:S.reportDay, p_kind:k, p_text:text, p_amount:amount, p_paid:k === 'purchase' ? (fd.get('paid') || 'cash') : null});
+      S.sheet = null; await reloadNotes(); render(); buzz(); toast(k === 'purchase' ? 'Покупка записана' : 'Заметка записана');
+    }catch(e){ toast(ru(e.message)); }
+  },
+  async shift(f){
+    const fd = new FormData(f), id = fd.get('id');
+    if (fd.get('end') <= fd.get('start')) return toast('Конец смены должен быть позже начала');
+    const row = {user_id:fd.get('user'), day:fd.get('day'), start_time:fd.get('start'), end_time:fd.get('end'), note:String(fd.get('note') || '').trim() || null};
+    try{
+      const r = id ? await sb.from('shifts').update(row).eq('id', id) : await sb.from('shifts').insert(row);
+      if (r.error) throw r.error;
+      S.sheet = null; await loadAll(); toast('Сохранено');
+    }catch(e){ toast(ru(e.message)); }
+  },
+  async pass(f){
+    const p = new FormData(f).get('p1');
+    try{ const {error} = await sb.auth.updateUser({password:p}); if (error) throw error; closeSheet(); toast('Пароль изменён'); }catch(e){ toast(ru(e.message)); }
+  }
+};
+document.addEventListener('submit', async e => {
+  const f = e.target; if (!f.dataset.f) return;
+  e.preventDefault();
+  const btn = f.querySelector('button[type=submit]'); if (btn) btn.disabled = true;
+  try{ await F[f.dataset.f](f); } finally{ if (btn && btn.isConnected) btn.disabled = false; }
+});
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.session) quickRefresh(); });
+setInterval(() => { if (!document.hidden && S.session) quickRefresh(); }, 45000);
+
+/* ---------- старт ---------- */
+if (cfgOk && sb) loadAll(); else { S.booting = false; render(); }
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+})();
+</script>
+</body>
+</html>
